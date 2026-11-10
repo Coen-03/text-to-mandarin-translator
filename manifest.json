@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Mandarin Selection Translator",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Select text on any page and see it in Mandarin: characters with pinyin above them. Translation runs on your own device.",
   "minimum_chrome_version": "138",
   "permissions": ["contextMenus", "storage"],

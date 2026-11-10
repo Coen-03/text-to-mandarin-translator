@@ -55,7 +55,11 @@
   }
 
   function openWindowFallback(text) {
-    chrome.runtime.sendMessage({ type: 'open-window', text });
+    try {
+      chrome.runtime.sendMessage({ type: 'open-window', text });
+    } catch {
+      // the extension was reloaded: this tab has to be reloaded first
+    }
   }
 
   async function showPanel(text, x, y) {

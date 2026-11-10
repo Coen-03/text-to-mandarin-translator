@@ -69,13 +69,28 @@
   }
 
   function requestPinyin(text) {
+    // After the extension is reloaded or updated, the content scripts in tabs
+    // that were already open keep running but lose their connection to it:
+    // chrome.runtime is then undefined, or sendMessage throws. The only cure
+    // is reloading the page, so say that instead of showing a raw TypeError.
+    const stale = new Error(
+      'The extension was reloaded or updated. Reload this page (F5) to use it again.'
+    );
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({ type: 'pinyin', text }, (response) => {
-        if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
-        else if (!response || !Array.isArray(response.characters)) {
-          reject(new Error('No pinyin received from the extension.'));
-        } else resolve(response.characters);
-      });
+      if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+        reject(stale);
+        return;
+      }
+      try {
+        chrome.runtime.sendMessage({ type: 'pinyin', text }, (response) => {
+          if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+          else if (!response || !Array.isArray(response.characters)) {
+            reject(new Error('No pinyin received from the extension.'));
+          } else resolve(response.characters);
+        });
+      } catch {
+        reject(stale);  // "Extension context invalidated"
+      }
     });
   }
 
