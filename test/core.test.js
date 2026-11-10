@@ -100,3 +100,46 @@ test('plainPinyin handles brackets and quotes', () => {
 test('plainPinyin of nothing is empty', () => {
   assert.equal(Core.plainPinyin([]), '');
 });
+
+const voice = (name, lang, localService) => ({ name, lang, localService });
+
+test('pickMandarinVoice prefers mainland Mandarin, and a local voice among equals', () => {
+  const voices = [
+    voice('Microsoft David', 'en-US', true),
+    voice('Google 普通话', 'zh-CN', false),
+    voice('Microsoft Huihui', 'zh-CN', true),
+    voice('Microsoft Hanhan', 'zh-TW', true),
+  ];
+  assert.equal(Core.pickMandarinVoice(voices).name, 'Microsoft Huihui');
+});
+
+test('pickMandarinVoice takes an online mainland voice over a local Taiwan voice', () => {
+  const voices = [voice('Microsoft Hanhan', 'zh-TW', true), voice('Google 普通话', 'zh-CN', false)];
+  assert.equal(Core.pickMandarinVoice(voices).name, 'Google 普通话');
+});
+
+test('pickMandarinVoice never picks a Cantonese voice', () => {
+  const cantonese = [
+    voice('Microsoft Tracy', 'zh-HK', true),
+    voice('Google 粤語', 'yue-HK', false),
+    voice('Sin-ji', 'zh_HK', true),
+    voice('Macau', 'zh-MO', true),
+  ];
+  assert.equal(Core.pickMandarinVoice(cantonese), null);
+  assert.equal(
+    Core.pickMandarinVoice([...cantonese, voice('Mei-Jia', 'zh_TW', true)]).name,
+    'Mei-Jia'
+  );
+});
+
+test('pickMandarinVoice accepts other spellings of the language tag', () => {
+  assert.equal(Core.pickMandarinVoice([voice('a', 'cmn-Hans-CN', false)]).name, 'a');
+  assert.equal(Core.pickMandarinVoice([voice('b', 'zh', true)]).name, 'b');
+  assert.equal(Core.pickMandarinVoice([voice('c', 'ZH_cn', true)]).name, 'c');
+});
+
+test('pickMandarinVoice returns null when nothing fits', () => {
+  assert.equal(Core.pickMandarinVoice([]), null);
+  assert.equal(Core.pickMandarinVoice(null), null);
+  assert.equal(Core.pickMandarinVoice([voice('x', 'en-GB', true), {}, null, { lang: 5 }]), null);
+});

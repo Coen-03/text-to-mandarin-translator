@@ -92,6 +92,64 @@
     return node;
   }
 
+  // The list of voices is filled asynchronously in Chrome: the first call can
+  // return an empty list, followed by a 'voiceschanged' event.
+  function loadVoices(synth) {
+    const voices = synth.getVoices();
+    if (voices.length > 0) return Promise.resolve(voices);
+    return new Promise((resolve) => {
+      const done = () => {
+        clearTimeout(timer);
+        synth.removeEventListener('voiceschanged', done);
+        resolve(synth.getVoices());
+      };
+      const timer = setTimeout(done, 1500);
+      synth.addEventListener('voiceschanged', done);
+    });
+  }
+
+  // Button that reads the Chinese text aloud. `note` is a line below the
+  // result where the chosen voice, or the reason for silence, is shown.
+  function listenButton(text, note) {
+    const label = 'Listen';
+    let speaking = false;
+    const node = button(label, async () => {
+      const synth = root.speechSynthesis;
+      if (!synth || typeof root.SpeechSynthesisUtterance !== 'function') {
+        note.textContent = 'This browser cannot read text aloud.';
+        return;
+      }
+      if (speaking) {
+        synth.cancel();
+        return;
+      }
+      const voice = Core.pickMandarinVoice(await loadVoices(synth));
+      if (!voice) {
+        note.textContent =
+          'No Mandarin voice found. Add Chinese (Simplified) with speech in the Windows language settings.';
+        return;
+      }
+      const utterance = new root.SpeechSynthesisUtterance(text);
+      utterance.voice = voice;
+      utterance.lang = voice.lang;
+      utterance.rate = 0.9;  // slightly slow: easier to follow along with the pinyin
+      utterance.onstart = () => {
+        speaking = true;
+        node.textContent = 'Stop';
+      };
+      utterance.onend = utterance.onerror = () => {
+        speaking = false;
+        node.textContent = label;
+      };
+      note.textContent = voice.localService
+        ? `Voice: ${voice.name}`
+        : `Voice: ${voice.name} (online voice: the Chinese text is sent to its provider)`;
+      synth.cancel();  // stop anything still playing from an earlier panel
+      synth.speak(utterance);
+    });
+    return node;
+  }
+
   function renderResult(card, result, segments) {
     card.replaceChildren();
 
@@ -108,14 +166,22 @@
     }
     const pinyinLine = Core.plainPinyin(segments);
     const actions = el('div', 'mst-actions');
+    const voiceNote = el('div', 'mst-source');
     actions.append(
+      listenButton(result.chinese, voiceNote),
       copyButton('Copy characters', result.chinese),
       copyButton('Copy pinyin', pinyinLine)
     );
     const source = result.translated
       ? `Translated from ${result.sourceLanguage} on this device`
       : 'Already Chinese: pinyin added';
-    card.append(hanzi, el('div', 'mst-pinyin', pinyinLine), el('div', 'mst-source', source), actions);
+    card.append(
+      hanzi,
+      el('div', 'mst-pinyin', pinyinLine),
+      el('div', 'mst-source', source),
+      actions,
+      voiceNote
+    );
   }
 
   // Translates text and fills `card`. options: { traditional, pageLanguage, onFallback }

@@ -137,6 +137,37 @@
     return out.trim();
   }
 
+  // How well a speech voice suits Mandarin: 0 = not at all, higher = better.
+  // The language tag matters more than it looks: zh-HK and yue voices speak
+  // Cantonese, which would read the same characters with different sounds.
+  function mandarinVoiceRank(voice) {
+    if (!voice || typeof voice.lang !== 'string') return 0;
+    const lang = voice.lang.toLowerCase().replace(/_/g, '-');
+    if (/^(yue|zh-hk|zh-mo)/.test(lang) || lang.includes('yue')) return 0;
+    if (/^(zh-cn|cmn-cn|cmn-hans|zh-hans|zh-sg)/.test(lang)) return 3;  // mainland Mandarin
+    if (/^(zh-tw|cmn-tw|cmn-hant|zh-hant)/.test(lang)) return 2;        // Taiwan Mandarin
+    if (lang === 'zh' || lang === 'cmn') return 1;
+    return 0;
+  }
+
+  // Picks the voice to read Chinese aloud, or null when none can.
+  // Between equally suitable voices a local one wins, because an online voice
+  // sends the text to its provider.
+  function pickMandarinVoice(voices) {
+    let best = null;
+    let bestScore = 0;
+    for (const voice of Array.isArray(voices) ? voices : []) {
+      const rank = mandarinVoiceRank(voice);
+      if (rank === 0) continue;
+      const score = rank * 2 + (voice.localService ? 1 : 0);
+      if (score > bestScore) {
+        best = voice;
+        bestScore = score;
+      }
+    }
+    return best;
+  }
+
   function hanzi(segments) {
     return segments.map((s) => s.text).join('');
   }
@@ -150,6 +181,7 @@
     pickSourceLanguage,
     buildSegments,
     plainPinyin,
+    pickMandarinVoice,
     hanzi,
   };
 });

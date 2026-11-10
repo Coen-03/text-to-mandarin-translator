@@ -29,6 +29,7 @@
   }
 
   function clear() {
+    if (isOpen() && window.speechSynthesis) window.speechSynthesis.cancel();  // stop reading aloud
     if (rootEl) rootEl.replaceChildren();
   }
 
