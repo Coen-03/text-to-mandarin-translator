@@ -1,0 +1,63 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  min-width: 340px;
+  background: #ffffff;
+  color: #1c1c1e;
+  font: 14px/1.4 system-ui, "Segoe UI", sans-serif;
+}
+
+main {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #d9d9de;
+  border-radius: 6px;
+  background: inherit;
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #6b6b70;
+}
+
+#result {
+  box-shadow: none;
+  max-width: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1f1f23;
+    color: #f2f2f5;
+  }
+
+  textarea {
+    border-color: #3a3a41;
+  }
+
+  .check {
+    color: #a0a0a8;
+  }
+}

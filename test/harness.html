@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harness: Mandarin Selection Translator</title>
+  <style>
+    body { font: 16px/1.6 system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; }
+    p { margin: 0 0 16px; }
+    .note { color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>Test page</h1>
+  <p class="note">
+    Runs the content script without installing the extension. The <code>chrome.*</code> calls are
+    replaced by a small stub below, and pinyin is computed in the page instead of in the service
+    worker. Serve the repository root over HTTP and open <code>/test/harness.html</code>.
+    Select any text below.
+  </p>
+  <p id="english">The weather is nice today and I would like a cup of tea.</p>
+  <p id="dutch" lang="nl">Ik bouw een snelheidsregeling voor een kleine motor.</p>
+  <p id="chinese" lang="zh">今天天气很好，我想去银行，然后行走回家。</p>
+  <p id="mixed">我用 Python 写了 3 个程序！</p>
+
+  <script src="../vendor/pinyin-pro.js"></script>
+  <script>
+    // Minimal stand-in for the extension APIs the content script uses.
+    window.chrome = {
+      runtime: {
+        lastError: null,
+        sendMessage(message, callback) {
+          if (message.type === 'pinyin') {
+            const characters = pinyinPro
+              .pinyin(message.text, { type: 'all' })
+              .map((c) => ({ origin: c.origin, pinyin: c.pinyin, isZh: c.isZh }));
+            setTimeout(() => callback({ characters }), 0);
+          } else if (message.type === 'open-window') {
+            alert('The extension would open its own translator window here.');
+          }
+        },
+        onMessage: { addListener() {} },
+      },
+      storage: { sync: { get: async (defaults) => defaults } },
+    };
+  </script>
+  <script src="../src/core.js"></script>
+  <script src="../src/translate.js"></script>
+  <script src="../src/panel.js"></script>
+  <script src="../src/content.js"></script>
+</body>
+</html>

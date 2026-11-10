@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Mandarin Selection Translator",
+  "version": "0.1.0",
+  "description": "Select text on any page and see it in Mandarin: characters with pinyin above them. Translation runs on your own device.",
+  "minimum_chrome_version": "138",
+  "permissions": ["contextMenus", "storage"],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/core.js", "src/translate.js", "src/panel.js", "src/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Translate to Mandarin",
+    "default_popup": "src/popup.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "mandarin-selection-translator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome extension: translate selected text to Mandarin with pinyin",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/core.test.js test/pinyin.test.js test/translate.test.js"
+  }
+}
