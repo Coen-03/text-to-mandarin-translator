@@ -1,6 +1,6 @@
 # Mandarin Selection Translator
 
-A Chrome extension: select text on any page and get it in Mandarin, as characters with the pinyin above each one. The translation runs on your own computer with Chrome's built-in translator, so the text you select is not sent to a server and no API key is needed.
+A browser extension for Chrome and Edge: select text on any page and get it in Mandarin, as characters with the pinyin above each one, and have it read aloud. The translation runs on your own computer with the browser's built-in translator, so translating sends nothing to a server and needs no API key. Reading aloud is the one exception when the browser only has online voices, see [Permissions](#permissions).
 
 ![A Dutch sentence translated to Mandarin with pinyin above the characters](docs/screenshot.png)
 
@@ -23,6 +23,7 @@ Requires Chrome 138 or newer on desktop. It also runs in Microsoft Edge, where i
 1. Download or clone this repository.
 2. Open `chrome://extensions` (in Edge: `edge://extensions`) and switch on **Developer mode**.
 3. Click **Load unpacked** and choose the repository folder.
+4. Reload the tabs that were already open. The same applies after every reload or update of the extension: a tab that was open keeps the old script until it is reloaded, and the panel says so.
 
 ## How it works
 
