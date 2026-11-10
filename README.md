@@ -2,6 +2,8 @@
 
 A Chrome extension: select text on any page and get it in Mandarin, as characters with the pinyin above each one. The translation runs on your own computer with Chrome's built-in translator, so the text you select is not sent to a server and no API key is needed.
 
+![A Dutch sentence translated to Mandarin with pinyin above the characters](docs/screenshot.png)
+
 Selecting text that is already Chinese skips the translation and adds the pinyin, which makes it a reading aid as well.
 
 ## Using it
